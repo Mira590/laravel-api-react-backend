@@ -35,8 +35,8 @@ class UserController extends Controller
 
             'password' => 'required|string|min:8|confirmed',
         ]);
-
-        $user = User::create([
+try{
+       $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
@@ -46,6 +46,14 @@ class UserController extends Controller
             'message' => 'User created successfully',
             'user' => $user,
         ], 201);
+    
+}catch(\Exception $e){
+     return response()->json([
+        'message'=>'Faild to  Create User',
+        'error'=>$e->getMessage()
+    ],500);
+}
+     
     }
 
     /**
