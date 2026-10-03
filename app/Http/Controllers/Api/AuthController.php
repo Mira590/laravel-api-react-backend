@@ -38,7 +38,7 @@ class AuthController extends Controller
 
     } catch (\Exception $e) {
 
-        // Log the actual error
+        
         \Log::error('User registration failed', [
             'error' => $e->getMessage(),
         ]);
@@ -53,13 +53,13 @@ class AuthController extends Controller
 public function login(Request $request)
 {
     try {
-        // Validate input
+        
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        // Attempt authentication
+        // Attemt authentication
         if (!Auth::attempt($request->only(['email', 'password']))) {
             return response()->json([
                 'message' => 'User Authentication Failed',
@@ -67,13 +67,13 @@ public function login(Request $request)
             ], 401);
         }
 
-        // Get authenticated user
+        
         $user = Auth::user();
 
-        // Generate Sanctum token
+        
         $token = $user->createToken("react-app")->plainTextToken;
 
-        // Success response
+        
         return response()->json([
             'message' => 'User Authenticated successfully',
             'success' => true,
@@ -82,7 +82,7 @@ public function login(Request $request)
         ], 200);
 
     } catch (\Exception $e) {
-        // Catch any unexpected errors
+        
         return response()->json([
             'message' => 'Something went wrong',
             'error'   => $e->getMessage(), // hide in production
