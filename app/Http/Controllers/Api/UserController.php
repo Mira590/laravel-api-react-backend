@@ -10,18 +10,25 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
-    
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::paginate(5);
+        $query = User::query()->select('id', 'name', 'email');
+
+        if ($request->filled('search')) {
+            $searchTerm = trim($request->search);
+
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                    ->orWhere('email', 'like', "%{$searchTerm}%");
+            });
+        }
 
         return response()->json([
             'message' => 'Users retrieved successfully',
-            'users' => $users,
+            'users' => $query->paginate(5),
         ], 200);
     }
 
-   
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -31,25 +38,25 @@ class UserController extends Controller
 
             'password' => 'required|string|min:8|confirmed',
         ]);
-try{
-       $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-        ]);
+        try {
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+            ]);
 
-        return response()->json([
-            'message' => 'User created successfully',
-            'user' => $user,
-        ], 201);
-    
-}catch(\Exception $e){
-     return response()->json([
-        'message'=>'Faild to  Create User',
-        'error'=>$e->getMessage()
-    ],500);
-}
-     
+            return response()->json([
+                'message' => 'User created successfully',
+                'user' => $user,
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Faild to  Create User',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+
     }
 
     /**
