@@ -12,20 +12,23 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::query()->select('id', 'name', 'email');
+        $query = User::query();
 
         if ($request->filled('search')) {
-            $searchTerm = trim($request->search);
+            $search = $request->search;
 
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', "%{$searchTerm}%")
-                    ->orWhere('email', 'like', "%{$searchTerm}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', "%{$search}%")
+                  ->orWhere('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
+        $users = $query->latest()->paginate(5);
+
         return response()->json([
             'message' => 'Users retrieved successfully',
-            'users' => $query->paginate(5),
+            'users' => $users,
         ], 200);
     }
 
