@@ -123,4 +123,18 @@ class UserController extends Controller
             'message' => 'User deleted successfully',
         ], 200);
     }
+
+    public function toggleStatus(User $user){
+
+      $user->status=$user->status ? 0:1;
+
+      $user->save();
+      return response()->json([
+             'message'=>true,
+            'message' => 'User Deactivated....',
+            'status'=>$user->status,
+        ], 201);
+
+
+ }
 }
